@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims;
+@inject SignInManager<Account> SignInManager
+@inject UserManager<Account> UserManager
+
+@{
+    var givenName = ((ClaimsIdentity)User?.Identity)?.FindFirst(ClaimTypes.GivenName)?.Value ?? "Unknown";
+    var role = ((ClaimsIdentity)User?.Identity)?.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BibNexus</title>
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="row">
+        <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+            <div class="container">
+                <a class="navbar-brand" style="margin-right:35px;" asp-controller="Home" asp-action="Index"><img src="~/img/BibNexus-Logo.png" width="270" /></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarColor01">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Books" asp-action="Index">Books</a></li>
+                        @if (role == "Student" || role == "Faculty")
+                        {
+                        <li class="nav-item"><a class="nav-link" asp-controller="History" asp-action="Index">Your History</a></li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                        <li class="nav-link">Hello, @givenName <i>(@role)</i></li>
+                        }
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Account</a>
+                            <div class="dropdown-menu">
+                                @if (!SignInManager.IsSignedIn(User))
+                                {
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Login">Log In</a>
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Register">Register</a>
+                                }
+                                else
+                                {
+                                <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Log Out</a>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="mt-5 mb-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container mt-4">
+            &copy; 2024 by Gabriel Alexander Arnold I & Youssif Salah Mohamed Elsayed Goda
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

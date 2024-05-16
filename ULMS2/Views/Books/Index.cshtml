@@ -1,0 +1,149 @@
+﻿@using System.Security.Claims;
+@model ULMS2.ViewModels.BookIndexViewModel
+
+@{
+    ViewData["Title"] = "Books";
+    var role = ((ClaimsIdentity)User?.Identity)?.FindFirst(ClaimTypes.Role)?.Value;
+}
+
+<div class="d-flex mb-3">
+    <div class="justify-content-start">
+        <h1><span style="margin-right:13px;">Books</span>@if(role == "Librarian"){<a role="button" asp-action="Add" class="btn btn-primary">Add</a>}else{<a role="button" asp-controller="History" asp-action="Index" class="btn btn-outline-primary">Your Checkout History</a>}</h1>
+    </div>
+    <div class="justify-content-end ms-auto" style="margin-top:8px;">
+        <input class="form-control" size="33" type="text" id="searchBooks" placeholder="Search book by title, author, or category">
+    </div>
+</div>
+@if (TempData["Message"] != null)
+{
+<div class="alert alert-dismissible alert-success">
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <p class="mb-0">@(TempData["Message"] as string)</p>
+</div>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Authors</th>
+            <th scope="col">ISBN</th>
+            <th scope="col">Date published</th>
+            <th scope="col">Category</th>
+            @if (role == "Librarian")
+            {
+            <th scope="col">Is available</th>
+            }
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody id="books">
+        @foreach (Book book in Model.Books)
+        {
+        <tr>
+            <th scope="row">@book.Id</th>
+            <td>@book.Title</td>
+            <td>@book.Authors</td>
+            <td>@book.ISBN</td>
+            <td>@book.DatePublished.ToString("MM/dd/yyyy")</td>
+            <td>@book.Category</td>
+            @if (role == "Librarian")
+            {
+            @if (book.IsAvailable)
+            {
+            <td><span class="badge bg-success">Yes</span></td>
+            }
+            else
+            {
+            <td><span class="badge bg-danger">No</span><span style="font-size:12px;margin-left:7px;">(due @book.MostRecentTransaction?.DateDue.ToString("MM/dd/yyyy"))</span></td>
+            }
+            <td><a asp-action="Edit" asp-route-id="@book.Id">Edit</a></td>
+            }
+            else
+            {
+            @if (book.IsAvailable)
+            {
+            <td id="rbBtn-@book.Id"><button type="submit" class="btn btn-sm btn-success" onclick="borrowBook(@book.Id);">Borrow</button></td>
+            }
+            else
+            {
+            @if (Model.UserBorrowedBooks.Contains(book.Id))
+            {
+            <td id="rbBtn-@book.Id"><button type="submit" class="btn btn-sm btn-danger" onclick="returnBook(@book.Id);">Return <span style="font-size:10px;">(due @book.MostRecentTransaction?.DateDue.ToString("MM/dd/yyyy"))</span></button></td>
+            }
+            else
+            {
+            <td><button type="submit" class="btn btn-sm btn-secondary disabled" disabled>Due @book.MostRecentTransaction?.DateDue.ToString("MM/dd/yyyy")</button></td>
+            }
+            }
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        let searchBooksInput = document.getElementById("searchBooks");
+
+        let debounce = null;
+        $("#searchBooks").on("input", function () {
+            clearTimeout(debounce);
+            debounce = setTimeout(function () {
+                filterBooks();
+            }, 250);
+        });
+
+        function filterBooks() {
+            let filter = searchBooksInput.value.toUpperCase();
+            let table = document.getElementById("books");
+
+            if (!table)
+                return null;
+
+            let rowCount = table.getElementsByTagName('tr').length;
+
+            for (var r = 0; r < rowCount; r++) {
+                let currentRow = table.rows[r];
+
+                if (!currentRow.innerText.toUpperCase().includes(filter)) {
+                    requestAnimationFrame(() => {
+                        currentRow.style.display = "none";
+                    });
+                }
+                else {
+                    requestAnimationFrame(() => {
+                        currentRow.style.display = "";
+                    });
+                }
+            }
+        }
+
+        function borrowBook(bookId) {
+            $.ajax({
+                type: "POST",
+                url: '/books/borrow',
+                data: {
+                    "bookId": bookId
+                },
+                success: function (data) {
+                    let dueDate = data.due;
+                    document.getElementById(`rbBtn-${bookId}`).innerHTML = `<button type="submit" class="btn btn-sm btn-danger" onclick="returnBook(${bookId});">Return <span style="font-size:10px;">(due ${dueDate})</span></button>`;
+                }
+            });
+        }
+
+        function returnBook(bookId) {
+            $.ajax({
+                type: "POST",
+                url: '/books/return',
+                data: {
+                    "bookId": bookId
+                },
+                success: function (data) {
+                    document.getElementById(`rbBtn-${bookId}`).innerHTML = `<button type="submit" class="btn btn-sm btn-success" onclick="borrowBook(${bookId});">Borrow</button>`;
+                }
+            });
+        }
+    </script>
+}

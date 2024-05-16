@@ -1,0 +1,99 @@
+﻿@model List<ULMS2.Models.Transaction>
+
+@{
+    ViewData["Title"] = "History";
+}
+
+<div class="d-flex mb-3">
+    <div class="justify-content-start">
+        <h1><span style="margin-right:13px;">Your Checkout History</span></h1>
+    </div>
+    <div class="justify-content-end ms-auto" style="margin-top:8px;">
+        <input class="form-control" size="33" type="text" id="searchTransactions" placeholder="Search book by title, author, or date">
+    </div>
+</div>
+@if (TempData["Message"] != null)
+{
+<div class="alert alert-dismissible alert-success">
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <p class="mb-0">@(TempData["Message"] as string)</p>
+</div>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Book title</th>
+            <th scope="col">Book authors</th>
+            <th scope="col">Book ISBN</th>
+            <th scope="col">Date borrowed</th>
+            <th scope="col">Date returned</th>
+        </tr>
+    </thead>
+    <tbody id="transactions">
+        @foreach (Transaction transaction in Model)
+        {
+        <tr>
+            <th scope="row">@transaction.Id</th>
+            <td>@transaction.Book.Title</td>
+            <td>@transaction.Book.Authors</td>
+            <td>@transaction.Book.ISBN</td>
+            <td>@transaction.DateBorrowed.ToString("MM/dd/yyyy")</td>
+            @if (transaction.DateReturned != null)
+            {
+            <td><span class="badge bg-success">Returned on @transaction.DateReturned?.ToString("MM/dd/yyyy")</span></td>
+            }
+            else
+            {
+            if (DateTime.Now > transaction.DateDue)
+            {
+            <td><span class="badge bg-danger">Overdue since @transaction.DateDue.ToString("MM/dd/yyyy")</span></td>
+            }
+            else
+            {
+            <td><span class="badge bg-warning">Due on @transaction.DateDue.ToString("MM/dd/yyyy")</span></td>
+            }
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        let searchTransactionsInput = document.getElementById("searchTransactions");
+
+        let debounce = null;
+        $("#searchTransactions").on("input", function () {
+            clearTimeout(debounce);
+            debounce = setTimeout(function () {
+                filterBooks();
+            }, 250);
+        });
+
+        function filterBooks() {
+            let filter = searchTransactionsInput.value.toUpperCase();
+            let table = document.getElementById("transactions");
+
+            if (!table)
+                return null;
+
+            let rowCount = table.getElementsByTagName('tr').length;
+
+            for (var r = 0; r < rowCount; r++) {
+                let currentRow = table.rows[r];
+
+                if (!currentRow.innerText.toUpperCase().includes(filter)) {
+                    requestAnimationFrame(() => {
+                        currentRow.style.display = "none";
+                    });
+                }
+                else {
+                    requestAnimationFrame(() => {
+                        currentRow.style.display = "";
+                    });
+                }
+            }
+        }
+    </script>
+}

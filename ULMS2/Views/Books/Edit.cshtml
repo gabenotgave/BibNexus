@@ -1,0 +1,48 @@
+﻿@model ULMS2.Models.Book
+
+@{
+    ViewData["Title"] = "Edit Book";
+}
+
+<h1 class="mb-3">Edit Book</h1>
+<form action="" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <fieldset>
+        <div>
+            <input asp-for="Id" type="hidden" />
+        </div>
+        <div>
+            <label class="form-label" asp-for="Title"></label>
+            <input class="form-control" asp-for="Title">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Authors"></label>
+            <input class="form-control" asp-for="Authors">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="ISBN"></label>
+            <input class="form-control" asp-for="ISBN">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="DatePublished"></label>
+            <input class="form-control" asp-for="DatePublished" type="date">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Category"></label>
+            <input class="form-control" asp-for="Category">
+        </div>
+        <div class="form-check mt-3">
+            <input class="form-check-input" asp-for="IsAvailable">
+            <label class="form-check-label" asp-for="IsAvailable"></label>
+        </div>
+        <input type="submit" formaction="/books/edit" class="btn btn-primary mt-3" value="Update">
+        <input type="submit" formaction="/books/delete" class="btn btn-danger mt-3" value="Delete">
+        <a role="button" class="btn btn-outline-primary mt-3" asp-action="Index">Cancel</a>
+    </fieldset>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

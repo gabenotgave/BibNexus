@@ -1,0 +1,46 @@
+﻿@model ULMS2.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+
+<h1 class="mb-3">Log In</h1>
+<form asp-action="Login">
+    @if (TempData["Registered"] != null && TempData["Registered"] as string == "true")
+    {
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <p class="mb-0">Successfully registered! Log in below.</p>
+    </div>
+    }
+    @if (TempData["SignedOut"] != null && TempData["SignedOut"] as string == "true")
+    {
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <p class="mb-0">You've been logged out.</p>
+    </div>
+    }
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <fieldset>
+        <div>
+            <label class="form-label" asp-for="Email"></label>
+            <input class="form-control" asp-for="Email">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Password"></label>
+            <input class="form-control" asp-for="Password">
+        </div>
+        <div class="form-check mt-3">
+            <input class="form-check-input" asp-for="RememberMe">
+            <label class="form-check-label" asp-for="RememberMe"></label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Log In</button>
+        <a role="button" class="btn btn-outline-primary mt-3" asp-action="Register">Don't have an account?</a>
+    </fieldset>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

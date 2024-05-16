@@ -1,0 +1,44 @@
+﻿@model ULMS2.Models.Book
+
+@{
+    ViewData["Title"] = "Add Book";
+}
+
+<h1 class="mb-3">Add Book</h1>
+<form asp-action="Add">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <fieldset>
+        <div>
+            <label class="form-label" asp-for="Title"></label>
+            <input class="form-control" asp-for="Title">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Authors"></label>
+            <input class="form-control" asp-for="Authors">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="ISBN"></label>
+            <input class="form-control" asp-for="ISBN">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="DatePublished"></label>
+            <input class="form-control" asp-for="DatePublished" type="date">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Category"></label>
+            <input class="form-control" asp-for="Category">
+        </div>
+        <div class="form-check mt-3">
+            <input class="form-check-input" asp-for="IsAvailable" checked>
+            <label class="form-check-label" asp-for="IsAvailable"></label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Add</button>
+        <a role="button" class="btn btn-outline-primary mt-3" asp-action="Index">Cancel</a>
+    </fieldset>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

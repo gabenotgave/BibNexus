@@ -1,0 +1,63 @@
+﻿@model ULMS2.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+
+<h1 class="mb-3">Register</h1>
+<form asp-action="Register">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <fieldset>
+        <div>
+            <label class="form-label" asp-for="Name"></label>
+            <input class="form-control" asp-for="Name">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Email"></label>
+            <input class="form-control" asp-for="Email">
+            <small class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+        <div>
+            <label class="form-label mt-2" asp-for="Password"></label>
+            <input class="form-control" asp-for="Password">
+        </div>
+        <div>
+            <label class="form-label mt-2" asp-for="ConfirmPassword"></label>
+            <input class="form-control" asp-for="ConfirmPassword">
+        </div>
+        <div>
+            <label class="form-label mt-3" asp-for="Role"></label>
+            <select class="form-select" asp-for="Role" onchange="changeRole();">
+                @foreach (string r in Model.Roles)
+                {
+                <option>@r</option>
+                }
+            </select>
+        </div>
+        @if (Model.Role != "Librarian")
+        {
+        <div id="departmentSelectionField">
+            <label class="form-label mt-3" asp-for="Department"></label>
+            <input class="form-control" asp-for="Department">
+        </div>
+        }
+        <button type="submit" class="btn btn-primary mt-4">Register</button>
+        <a role="button" class="btn btn-outline-primary mt-4" asp-action="Login">Already have an account?</a>
+    </fieldset>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function changeRole() {
+            let role = document.getElementById("Role").value;
+            let deptSelectionField = document.getElementById("departmentSelectionField");
+            if (role === "Librarian") {
+                deptSelectionField.classList.add("d-none");
+                document.getElementById("Department").value = "";
+            } else {
+                deptSelectionField.classList.remove("d-none");
+            }
+        }
+    </script>
+}
